@@ -1,0 +1,8 @@
+{
+  "name": "FROST by NEXELIQ",
+  "short_name": "FROST",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0d0d0f",
+  "theme_color": "#111111"
+}
