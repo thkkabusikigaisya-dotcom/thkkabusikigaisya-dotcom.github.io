@@ -33,17 +33,20 @@
     .tiny { color:#8f8f9a; font-size:12px; line-height:1.55; }
     .hidden { display:none !important; }
     .pill { display:inline-block; padding:5px 9px; border-radius:999px; background:#232329; font-size:12px; margin-right:6px; color:#d6d6dd; }
+    .strength-wrap { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:12px 0 10px; }
+    .strength-btn { width:100%; margin:0; border:1px solid #3a3a45; background:#202028; color:#fff; border-radius:12px; padding:12px 10px; font-size:15px; font-weight:700; }
+    .strength-btn.active { background:#fff; color:#111; border-color:#fff; }
   </style>
 </head>
 <body>
 <main>
   <h1>FROST</h1>
-  <p class="sub">NEXELIQ / Lite v0.3</p>
+  <p class="sub">NEXELIQ / Lite v0.4</p>
 
   <section class="card privacy">
     <span class="pill">X teaser</span><span class="pill">iPhone local</span><span class="pill">Safari fallback blur</span>
     <p class="ok">動画も加工処理もiPhone内。外部アップロードなし。</p>
-    <p class="tiny">v0.3はSafariのCanvas blur APIに依存せず、縮小→高品質拡大で強いすりガラス風ぼかしを作ります。エンジン待機はありません。加工時間は基本的に動画の長さと同程度です。</p>
+    <p class="tiny">v0.4はSafari互換の縮小→高品質拡大方式を維持しつつ、ぼかし強度を「弱・中・強」から選べます。初期値は中です。</p>
   </section>
 
   <section class="card">
@@ -56,7 +59,12 @@
 
   <section class="card">
     <strong>X用すりガラス</strong>
-    <p class="tiny">全画面強ブラー / 音声なし / 最大1280px / 端末内処理</p>
+    <p class="tiny">全画面ブラー / 音声なし / 最大1280px / 端末内処理</p>
+    <div class="strength-wrap" aria-label="ぼかし強度">
+      <button type="button" class="strength-btn" data-strength="weak">弱</button>
+      <button type="button" class="strength-btn active" data-strength="medium">中</button>
+      <button type="button" class="strength-btn" data-strength="strong">強</button>
+    </div>
     <button id="processBtn" class="primary" disabled>加工スタート</button>
     <progress id="progress" max="1" value="0"></progress>
     <div id="status" class="status">準備完了。動画を選んでね。</div>
@@ -72,8 +80,8 @@
     <button id="clearBtn" class="danger">この処理データを破棄</button>
   </section>
 
-  <p class="tiny">Lite v0.3: まずは90秒以下を推奨。加工中はSafariを前面にして、画面をスリープさせないでください。</p>
+  <p class="tiny">Lite v0.4: まずは90秒以下を推奨。加工中はSafariを前面にして、画面をスリープさせないでください。</p>
 </main>
-<script src="./app.js?v=0.3.0"></script>
+<script src="./app.js?v=0.4.0"></script>
 </body>
 </html>
