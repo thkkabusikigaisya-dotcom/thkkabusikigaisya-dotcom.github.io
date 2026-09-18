@@ -16,6 +16,7 @@
   const MAX_SECONDS = 90;
   const MAX_DIM = 1280;
   const FPS = 30;
+  const BLUR_DIVISOR = 18;
 
   let selectedFile = null;
   let outputFile = null;
@@ -86,13 +87,30 @@
     };
   }
 
-  function drawFrame(ctx, canvas, v) {
-    const pad = Math.max(18, Math.round(Math.max(canvas.width, canvas.height) * 0.025));
-    ctx.save();
+  function makeBlurBuffer(width, height) {
+    const c = document.createElement('canvas');
+    c.width = Math.max(24, Math.round(width / BLUR_DIVISOR));
+    c.height = Math.max(24, Math.round(height / BLUR_DIVISOR));
+    return { canvas: c, ctx: c.getContext('2d', { alpha: false }) };
+  }
+
+  function drawFrostedFrame(ctx, canvas, blurCtx, blurCanvas, v) {
+    blurCtx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingEnabled = true;
+    if ('imageSmoothingQuality' in blurCtx) blurCtx.imageSmoothingQuality = 'high';
+    if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
+
+    blurCtx.clearRect(0, 0, blurCanvas.width, blurCanvas.height);
+    blurCtx.drawImage(v, 0, 0, blurCanvas.width, blurCanvas.height);
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.filter = 'blur(24px)';
-    ctx.drawImage(v, -pad, -pad, canvas.width + pad * 2, canvas.height + pad * 2);
-    ctx.restore();
+    ctx.drawImage(blurCanvas, 0, 0, blurCanvas.width, blurCanvas.height, 0, 0, canvas.width, canvas.height);
+
+    // A subtle second soft pass makes the upscale look closer to frosted glass.
+    ctx.globalAlpha = 0.22;
+    ctx.drawImage(blurCanvas, 1, 0, blurCanvas.width, blurCanvas.height, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(blurCanvas, -1, 0, blurCanvas.width, blurCanvas.height, 0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = 1;
   }
 
   function getDuration(file) {
@@ -160,7 +178,10 @@
       canvas.width = size.width;
       canvas.height = size.height;
       const ctx = canvas.getContext('2d', { alpha: false });
-      if (!ctx || !('filter' in ctx)) throw new Error('Canvas blur非対応');
+      if (!ctx) throw new Error('Canvas初期化失敗');
+
+      const { canvas: blurCanvas, ctx: blurCtx } = makeBlurBuffer(canvas.width, canvas.height);
+      if (!blurCtx) throw new Error('Blur buffer初期化失敗');
 
       const stream = canvas.captureStream(FPS);
       const opts = mime ? { mimeType: mime, videoBitsPerSecond: 2500000 } : { videoBitsPerSecond: 2500000 };
@@ -178,12 +199,12 @@
         if (v.readyState >= 2) resolve();
         else v.onloadeddata = resolve;
       });
-      drawFrame(ctx, canvas, v);
+      drawFrostedFrame(ctx, canvas, blurCtx, blurCanvas, v);
 
       let drawing = true;
       const tick = () => {
         if (!drawing) return;
-        drawFrame(ctx, canvas, v);
+        drawFrostedFrame(ctx, canvas, blurCtx, blurCanvas, v);
         if (duration > 0) progressEl.value = Math.min(0.99, v.currentTime / duration);
         setStatus(`加工中… ${v.currentTime.toFixed(1)} / ${duration.toFixed(1)}秒`);
         if ('requestVideoFrameCallback' in v) v.requestVideoFrameCallback(tick);
@@ -201,7 +222,7 @@
       });
 
       drawing = false;
-      drawFrame(ctx, canvas, v);
+      drawFrostedFrame(ctx, canvas, blurCtx, blurCanvas, v);
       recorder.stop();
       await stopped;
       stream.getTracks().forEach(t => t.stop());
