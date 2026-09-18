@@ -11,12 +11,20 @@
   const shareBtn = document.getElementById('shareBtn');
   const downloadBtn = document.getElementById('downloadBtn');
   const clearBtn = document.getElementById('clearBtn');
+  const strengthButtons = document.querySelectorAll('.strength-btn');
 
   const MAX_BYTES = 350 * 1024 * 1024;
   const MAX_SECONDS = 90;
   const MAX_DIM = 1280;
   const FPS = 30;
-  const BLUR_DIVISOR = 18;
+
+  const STRENGTH_PRESETS = {
+    weak:   { divisor: 18, alpha: 0.22, label: '弱' },
+    medium: { divisor: 26, alpha: 0.35, label: '中' },
+    strong: { divisor: 34, alpha: 0.50, label: '強' }
+  };
+
+  let currentStrength = 'medium';
 
   let selectedFile = null;
   let outputFile = null;
@@ -26,6 +34,22 @@
 
   function setStatus(msg) { statusEl.textContent = msg; }
   function humanMB(n) { return `${(n / 1024 / 1024).toFixed(1)} MB`; }
+  function getCurrentPreset() { return STRENGTH_PRESETS[currentStrength]; }
+
+  function updateStrengthButtons() {
+    strengthButtons.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.strength === currentStrength);
+    });
+  }
+
+  strengthButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentStrength = btn.dataset.strength;
+      updateStrengthButtons();
+      setStatus(`強度「${getCurrentPreset().label}」を選択中。`);
+    });
+  });
+  updateStrengthButtons();
 
   function supportedMime() {
     if (!window.MediaRecorder) return null;
@@ -88,13 +112,16 @@
   }
 
   function makeBlurBuffer(width, height) {
+    const preset = getCurrentPreset();
     const c = document.createElement('canvas');
-    c.width = Math.max(24, Math.round(width / BLUR_DIVISOR));
-    c.height = Math.max(24, Math.round(height / BLUR_DIVISOR));
+    c.width = Math.max(24, Math.round(width / preset.divisor));
+    c.height = Math.max(24, Math.round(height / preset.divisor));
     return { canvas: c, ctx: c.getContext('2d', { alpha: false }) };
   }
 
   function drawFrostedFrame(ctx, canvas, blurCtx, blurCanvas, v) {
+    const preset = getCurrentPreset();
+
     blurCtx.imageSmoothingEnabled = true;
     ctx.imageSmoothingEnabled = true;
     if ('imageSmoothingQuality' in blurCtx) blurCtx.imageSmoothingQuality = 'high';
@@ -106,10 +133,11 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(blurCanvas, 0, 0, blurCanvas.width, blurCanvas.height, 0, 0, canvas.width, canvas.height);
 
-    // A subtle second soft pass makes the upscale look closer to frosted glass.
-    ctx.globalAlpha = 0.22;
+    ctx.globalAlpha = preset.alpha;
     ctx.drawImage(blurCanvas, 1, 0, blurCanvas.width, blurCanvas.height, 0, 0, canvas.width, canvas.height);
     ctx.drawImage(blurCanvas, -1, 0, blurCanvas.width, blurCanvas.height, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(blurCanvas, 0, 1, blurCanvas.width, blurCanvas.height, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(blurCanvas, 0, -1, blurCanvas.width, blurCanvas.height, 0, 0, canvas.width, canvas.height);
     ctx.globalAlpha = 1;
   }
 
@@ -144,7 +172,7 @@
       } else if (duration > MAX_SECONDS) {
         setStatus('90秒を超えています。まずはX用の短尺で試してね。');
       } else {
-        setStatus('準備完了。すぐ加工できます。');
+        setStatus(`準備完了。強度「${getCurrentPreset().label}」で加工できます。`);
       }
       processBtn.disabled = false;
     } catch (e) {
@@ -240,7 +268,7 @@
       downloadBtn.download = outputFile.name;
       resultCard.classList.remove('hidden');
       progressEl.value = 1;
-      setStatus(`完成。 ${humanMB(blob.size)} / 音声なし / サーバー送信なし`);
+      setStatus(`完成。 ${humanMB(blob.size)} / すりガラス強度「${getCurrentPreset().label}」 / 音声なし / サーバー送信なし`);
     } catch (e) {
       console.error(e);
       setStatus(`加工失敗: ${e.message || e}`);
