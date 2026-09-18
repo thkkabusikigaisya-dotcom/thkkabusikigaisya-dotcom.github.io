@@ -38,12 +38,12 @@
 <body>
 <main>
   <h1>FROST</h1>
-  <p class="sub">NEXELIQ / Lite v0.2</p>
+  <p class="sub">NEXELIQ / Lite v0.3</p>
 
   <section class="card privacy">
-    <span class="pill">X teaser</span><span class="pill">iPhone local</span><span class="pill">no FFmpeg</span>
+    <span class="pill">X teaser</span><span class="pill">iPhone local</span><span class="pill">Safari fallback blur</span>
     <p class="ok">動画も加工処理もiPhone内。外部アップロードなし。</p>
-    <p class="tiny">v0.2は重いFFmpeg.wasmを廃止。Safari標準のCanvas + MediaRecorderだけで処理します。エンジン待機はありません。加工時間は基本的に動画の長さと同程度です。</p>
+    <p class="tiny">v0.3はSafariのCanvas blur APIに依存せず、縮小→高品質拡大で強いすりガラス風ぼかしを作ります。エンジン待機はありません。加工時間は基本的に動画の長さと同程度です。</p>
   </section>
 
   <section class="card">
@@ -72,8 +72,8 @@
     <button id="clearBtn" class="danger">この処理データを破棄</button>
   </section>
 
-  <p class="tiny">Lite v0.2: まずは90秒以下を推奨。加工中はSafariを前面にして、画面をスリープさせないでください。</p>
+  <p class="tiny">Lite v0.3: まずは90秒以下を推奨。加工中はSafariを前面にして、画面をスリープさせないでください。</p>
 </main>
-<script src="./app.js?v=0.2.0"></script>
+<script src="./app.js?v=0.3.0"></script>
 </body>
 </html>
