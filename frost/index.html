@@ -36,17 +36,22 @@
     .strength-wrap { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:12px 0 10px; }
     .strength-btn { width:100%; margin:0; border:1px solid #3a3a45; background:#202028; color:#fff; border-radius:12px; padding:12px 10px; font-size:15px; font-weight:700; }
     .strength-btn.active { background:#fff; color:#111; border-color:#fff; }
+    .watermark-box { margin:14px 0 2px; }
+    .watermark-label { display:block; font-size:14px; font-weight:700; margin-bottom:7px; }
+    .text-input { width:100%; border:1px solid #3a3a45; background:#101014; color:#fff; border-radius:12px; padding:13px 14px; font-size:16px; outline:none; }
+    .text-input:focus { border-color:#777784; }
+    .text-input:disabled { opacity:.5; }
   </style>
 </head>
 <body>
 <main>
   <h1>FROST</h1>
-  <p class="sub">NEXELIQ / Lite v0.4</p>
+  <p class="sub">NEXELIQ / Lite v0.5</p>
 
   <section class="card privacy">
     <span class="pill">X teaser</span><span class="pill">iPhone local</span><span class="pill">Safari fallback blur</span>
     <p class="ok">動画も加工処理もiPhone内。外部アップロードなし。</p>
-    <p class="tiny">v0.4はSafari互換の縮小→高品質拡大方式を維持しつつ、ぼかし強度を「弱・中・強」から選べます。初期値は中です。</p>
+    <p class="tiny">v0.5はSafari互換の軽い処理を維持しつつ、ぼかし強度選択と、任意のユーザーネームを画面全体へ複数表示する透かしに対応します。</p>
   </section>
 
   <section class="card">
@@ -65,6 +70,13 @@
       <button type="button" class="strength-btn active" data-strength="medium">中</button>
       <button type="button" class="strength-btn" data-strength="strong">強</button>
     </div>
+
+    <div class="watermark-box">
+      <label class="watermark-label" for="usernameInput">ユーザーネーム透かし（任意）</label>
+      <input id="usernameInput" class="text-input" type="text" maxlength="40" placeholder="@username" autocomplete="off" autocapitalize="off" />
+      <p class="tiny">入力すると、同じ文字を斜めに複数配置します。未入力なら透かしなし。</p>
+    </div>
+
     <button id="processBtn" class="primary" disabled>加工スタート</button>
     <progress id="progress" max="1" value="0"></progress>
     <div id="status" class="status">準備完了。動画を選んでね。</div>
@@ -80,8 +92,8 @@
     <button id="clearBtn" class="danger">この処理データを破棄</button>
   </section>
 
-  <p class="tiny">Lite v0.4: まずは90秒以下を推奨。加工中はSafariを前面にして、画面をスリープさせないでください。</p>
+  <p class="tiny">Lite v0.5: まずは90秒以下を推奨。加工中はSafariを前面にして、画面をスリープさせないでください。</p>
 </main>
-<script src="./app.js?v=0.4.0"></script>
+<script src="./app.js?v=0.5.0"></script>
 </body>
 </html>
