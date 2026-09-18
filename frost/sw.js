@@ -1,5 +1,5 @@
-const CACHE = 'frost-v0.3.0';
-const LOCAL = ['./','./index.html','./app.js?v=0.3.0','./manifest.webmanifest'];
+const CACHE = 'frost-v0.4.0';
+const LOCAL = ['./','./index.html','./app.js?v=0.4.0','./manifest.webmanifest'];
 self.addEventListener('install', e => {
   self.skipWaiting();
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(LOCAL)));
