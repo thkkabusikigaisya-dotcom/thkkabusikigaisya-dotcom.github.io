@@ -46,12 +46,12 @@
 <body>
 <main>
   <h1>FROST</h1>
-  <p class="sub">NEXELIQ / Lite v0.5</p>
+  <p class="sub">NEXELIQ / Lite v0.5.2</p>
 
   <section class="card privacy">
     <span class="pill">X teaser</span><span class="pill">iPhone local</span><span class="pill">Safari fallback blur</span>
     <p class="ok">動画も加工処理もiPhone内。外部アップロードなし。</p>
-    <p class="tiny">v0.5はSafari互換の軽い処理を維持しつつ、ぼかし強度選択と、任意のユーザーネームを画面全体へ複数表示する透かしに対応します。</p>
+    <p class="tiny">v0.5.2は、ぼかし強度選択とユーザーネーム複数透かしに対応。旧PWAキャッシュを解除するhotfix版です。</p>
   </section>
 
   <section class="card">
@@ -92,8 +92,21 @@
     <button id="clearBtn" class="danger">この処理データを破棄</button>
   </section>
 
-  <p class="tiny">Lite v0.5: まずは90秒以下を推奨。加工中はSafariを前面にして、画面をスリープさせないでください。</p>
+  <p class="tiny">Lite v0.5.2: まずは90秒以下を推奨。加工中はSafariを前面にして、画面をスリープさせないでください。</p>
 </main>
-<script src="./app.js?v=0.5.0"></script>
+<script>
+  // Remove old FROST service workers/caches so stale v0.4 cannot persist.
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      regs.forEach(reg => reg.unregister());
+    }).catch(() => {});
+  }
+  if ('caches' in window) {
+    caches.keys().then(keys => {
+      keys.filter(k => k.startsWith('frost-')).forEach(k => caches.delete(k));
+    }).catch(() => {});
+  }
+</script>
+<script src="./app-v052.js?v=20260919-0203"></script>
 </body>
 </html>
